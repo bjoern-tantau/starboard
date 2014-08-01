@@ -79,3 +79,8 @@ App::down(function()
 */
 
 require app_path().'/filters.php';
+
+/**
+ * Require the blade extensions file.
+ */
+require app_path().'/blade_extensions.php';

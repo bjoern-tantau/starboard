@@ -11,6 +11,14 @@
   |
  */
 
-Route::get('/', function() {
-    return View::make('hello');
-});
+Route::pattern('id', '[0-9]+');
+
+Route::get('/', 'HomeController@getIndex');
+
+Route::resource('user', 'UserController');
+
+Route::get('login', 'AuthController@getLogin');
+Route::get('logout', 'AuthController@getLogout');
+Route::controller('auth', 'AuthController');
+
+Route::controller('config', 'ConfigController');
