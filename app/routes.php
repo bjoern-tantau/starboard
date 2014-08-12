@@ -17,8 +17,8 @@ Route::get('/', 'HomeController@getIndex');
 
 Route::resource('user', 'UserController');
 
-Route::get('login', 'AuthController@getLogin');
-Route::get('logout', 'AuthController@getLogout');
+Route::get('login', 'AuthController@getLogin')->before('guest');
+Route::get('logout', 'AuthController@getLogout')->before('auth');
 Route::controller('auth', 'AuthController');
 
 Route::controller('config', 'ConfigController');
