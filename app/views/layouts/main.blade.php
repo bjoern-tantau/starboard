@@ -8,9 +8,14 @@
         <ul class="nav">
             <li>{{ link_to('/', trans('Home')) }}</li>
             @if(Auth::check())
+            <li>{{ link_to_route('user.show', trans('User Settings'), Auth::user()->id) }}</li>
+            @if (Auth::user()->isAdmin)
+            <li>{{ link_to_route('user.index', trans('Users')) }}</li>
+            @endif
             <li>{{ link_to_action('AuthController@getLogout', trans('Logout')) }}</li>
             @else
             <li>{{ link_to_action('AuthController@getLogin', trans('Login')) }}</li>
+            <li>{{ link_to_route('user.create', trans('Register')) }}</li>
             @endif
         </ul>
         @if(isset($message))
