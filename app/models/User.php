@@ -58,16 +58,17 @@ class User extends Base implements UserInterface, RemindableInterface
      *
      * @var array
      */
-    public static $create_rules = array(
+    public $create_rules = array(
         'email'    => 'required|email|unique:users',
         'name'     => 'required|alpha_dash|unique:users',
         'password' => 'required|min:6|confirmed',
     );
-    public static $update_rules = array(
+    public $update_rules = array(
         'email'    => 'required|email|unique:users',
         'name'     => 'required|alpha_dash|unique:users',
         'password' => 'min:6|confirmed',
     );
+    public static $rules = array();
 
     /**
      * Groups relationship.

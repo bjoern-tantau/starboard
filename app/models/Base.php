@@ -5,22 +5,16 @@ use LaravelBook\Ardent\Ardent;
 class Base extends Ardent
 {
 
-    public function beforeSave($forced)
-    {
-        if ($this->exists && isset(self::$update_rules)) {
-            self::$rules = self::$update_rules;
-        } elseif (!$this->exists && isset(self::$create_rules)) {
-            self::$rules = self::$update_rules;
-        }
-        return true;
-    }
-
     //Ardent / Modification for validation.
     public function validate(array $rules = array(), array $customMessages = array())
     {
-
         //If custome rules are not being applied, then use default rules in class
         if (empty($rules)) {
+            if ($this->exists && isset($this->update_rules)) {
+                static::$rules = $this->update_rules;
+            } elseif (!$this->exists && isset($this->create_rules)) {
+                static::$rules = $this->create_rules;
+            }
             $rules = $this->ignoreCurrentRecordForUnique();
         }
         return parent::validate($rules, $customMessages);
