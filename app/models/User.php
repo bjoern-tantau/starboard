@@ -66,7 +66,8 @@ class User extends Base implements UserInterface, RemindableInterface
     public $update_rules = array(
         'email'    => 'required|email|unique:users',
         'name'     => 'required|alpha_dash|unique:users',
-        'password' => 'min:6|confirmed',
+        'password' => 'min:6',
+        'password_confirmation' => 'same:password',
     );
     public static $rules = array();
 

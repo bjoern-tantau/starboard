@@ -68,7 +68,7 @@ class UserController extends \BaseController
             return App::abort(404);
         }
         $authUser = Auth::user();
-        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin());
+        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin);
         $this->layout->content = View::make('user.show', array(
                 'user'    => $user,
                 'canEdit' => $canEdit,
@@ -88,7 +88,7 @@ class UserController extends \BaseController
             return App::abort(404);
         }
         $authUser = Auth::user();
-        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin());
+        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin);
         if ($canEdit) {
             $this->layout->content = View::make('user.edit', array(
                     'user' => $user,
@@ -111,7 +111,7 @@ class UserController extends \BaseController
             return App::abort(404);
         }
         $authUser = Auth::user();
-        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin());
+        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin);
         if ($canEdit) {
             $user->fill(Input::only(array(
                     'name', 'email',
@@ -144,7 +144,7 @@ class UserController extends \BaseController
             return App::abort(404);
         }
         $authUser = Auth::user();
-        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin());
+        $canEdit = ($authUser->id == $user->id || $authUser->isAdmin);
 
         if ($canEdit) {
             $user->delete();
