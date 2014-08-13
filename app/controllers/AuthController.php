@@ -69,7 +69,7 @@ class AuthController extends BaseController
     {
         switch ($response = Password::remind(Input::only('email'))) {
             case Password::INVALID_USER:
-                return Redirect::to('login')->with('error', Lang::get($response));
+                return Redirect::to('login')->withErrors(array(Lang::get($response)));
 
             case Password::REMINDER_SENT:
                 return Redirect::to('login')->with('message', Lang::get($response));
