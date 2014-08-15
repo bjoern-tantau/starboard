@@ -21,6 +21,7 @@ class Game extends GameBase
         'type',
         'state',
         'max_players',
+        'owner',
     );
 
     /**
@@ -87,6 +88,26 @@ class Game extends GameBase
     public function setOwnerAttribute(User $user)
     {
         $this->owner_id = $user->id;
+    }
+
+    /**
+     * Associate players with game.
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function players()
+    {
+        return $this->hasMany('Player');
+    }
+
+    /**
+     * Associate users through players with game.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function users()
+    {
+        return $this->belongsToMany('User', 'players');
     }
 
     /**

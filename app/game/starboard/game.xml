@@ -2,6 +2,7 @@
 <game>
     <starboard>
         <name>StarBoard</name>
+        <default_character>jack</default_character>
         <characters>
             <jack>
                 <name>Jack Reynolds</name>

@@ -236,14 +236,40 @@ class Models_UserTest extends TestCase
                 'password_confirmation' => 'password',
         ));
 
+        $game = Game::create(array('owner' => $user));
+
         $this->assertCount(0, $user->games);
 
-        $game = new Game();
-        $user->games()->save($game);
+        $player = Player::create(array('user' => $user, 'game' => $game));
 
         $user = User::find($user->id);
         $this->assertCount(1, $user->games);
         $this->assertEquals($game->id, $user->games->first()->id);
+    }
+
+    /**
+     * Is the user associated to games he owns?
+     *
+     * @test
+     */
+    public function testOwnGamesAssociation()
+    {
+        Game::boot();
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+
+        $this->assertCount(0, $user->ownGames);
+
+        $game = new Game();
+        $user->ownGames()->save($game);
+
+        $user = User::find($user->id);
+        $this->assertCount(1, $user->ownGames);
+        $this->assertEquals($game->id, $user->ownGames->first()->id);
     }
 
 }

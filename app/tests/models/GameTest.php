@@ -45,8 +45,7 @@ class Models_GameTest extends TestCase
             'max_players' => 6,
         );
 
-        $game = new Game();
-        $user->games()->save($game);
+        $game = Game::create(array('owner' => $user));
 
         $this->assertEquals($expected['name'], $game->name);
         $this->assertEquals($expected['type'], $game->type);
@@ -61,25 +60,26 @@ class Models_GameTest extends TestCase
      */
     public function testFieldsAvailable()
     {
-        $owner = User::firstOrCreate(array(
+        $user = User::firstOrCreate(array(
                 'email'                 => 'foo@bar.com',
                 'name'                  => 'foobar',
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
         $data = array(
+            'owner'       => $user,
             'name'        => 'Testgame',
             'type'        => 'starboard',
             'state'       => 2,
             'max_players' => 4,
         );
-        $game = new Game($data);
-        $owner->games()->save($game);
+        $game = Game::create($data);
 
         $loaded = Game::find($game->id);
         $this->assertEquals($data['name'], $loaded->name);
         $this->assertEquals($data['type'], $loaded->type);
-        $this->assertEquals($owner->id, $loaded->owner->id);
+        $this->assertEquals($user->id, $loaded->owner->id);
+        $this->assertEquals($user->id, $loaded->owner_id);
         $this->assertEquals($data['state'], $loaded->state);
         $this->assertEquals($data['max_players'], $loaded->maxPlayers);
     }
@@ -149,6 +149,37 @@ class Models_GameTest extends TestCase
 
         $errors = $game->errors()->all();
         $this->assertCount(0, $errors);
+    }
+
+    /**
+     * Test User associations through players.
+     *
+     * @test
+     */
+    public function testUserAssocicationsThroughPlayers()
+    {
+        $owner = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+
+        $game = Game::firstOrCreate(array('owner' => $owner));
+
+        $this->assertCount(0, $game->users);
+
+        $player = Player::create(array('user' => $owner, 'game' => $game));
+        $game = Game::find($game->id);
+        $this->assertCount(1, $game->users);
+        $user = $game->users()->first();
+        $this->assertInstanceOf('User', $user);
+        $this->assertEquals($user->id, $owner->id);
+
+        $this->assertCount(1, $game->players);
+        $player = $game->players()->first();
+        $this->assertInstanceOf('Player', $player);
+        $this->assertEquals($player->user->id, $owner->id);
     }
 
     /**

@@ -122,13 +122,23 @@ class User extends Base implements UserInterface, RemindableInterface
     }
 
     /**
-     * Games relationship.
+     * Game ownership relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function ownGames()
+    {
+        return $this->hasMany('Game', 'owner_id');
+    }
+
+    /**
+     * Games Playing relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function games()
     {
-        return $this->hasMany('Game', 'owner_id');
+        return $this->belongsToMany('Game', 'players');
     }
 
 }
