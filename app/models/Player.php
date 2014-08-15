@@ -55,16 +55,6 @@ class Player extends GameBase
     }
 
     /**
-     * The "booting" method of the model.
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-    }
-
-    /**
      * Associate player with user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

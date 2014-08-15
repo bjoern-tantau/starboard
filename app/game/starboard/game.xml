@@ -3,6 +3,7 @@
     <starboard>
         <name>StarBoard</name>
         <default_character>jack</default_character>
+        <default_planet>sol</default_planet>
         <characters>
             <jack>
                 <name>Jack Reynolds</name>
@@ -35,5 +36,55 @@
                 <color>green</color>
             </brain>
         </characters>
+        <planets>
+            <sol>
+                <name>Sol</name>
+                <routes>4</routes>
+            </sol>
+            <mercury>
+                <name>Mercury</name>
+                <routes>2</routes>
+            </mercury>
+            <venus>
+                <name>Venus</name>
+                <routes>3</routes>
+            </venus>
+            <terra>
+                <name>Terra</name>
+                <routes>4</routes>
+            </terra>
+            <luna>
+                <name>Luna</name>
+                <routes>2</routes>
+            </luna>
+            <mars>
+                <name>Mars</name>
+                <routes>3</routes>
+            </mars>
+            <jupiter>
+                <name>Jupiter</name>
+                <routes>4</routes>
+            </jupiter>
+            <europa>
+                <name>Europa</name>
+                <routes>2</routes>
+            </europa>
+            <saturn>
+                <name>Saturn</name>
+                <routes>4</routes>
+            </saturn>
+            <uranus>
+                <name>Uranus</name>
+                <routes>4</routes>
+            </uranus>
+            <neptune>
+                <name>Neptune</name>
+                <routes>4</routes>
+            </neptune>
+            <pluto>
+                <name>Pluto</name>
+                <routes>2</routes>
+            </pluto>
+        </planets>
     </starboard>
 </game>
