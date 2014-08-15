@@ -221,4 +221,29 @@ class Models_UserTest extends TestCase
         $this->assertNotEquals('password', $user->password);
     }
 
+    /**
+     * Is the user associated to games?
+     *
+     * @test
+     */
+    public function testGamesAssociation()
+    {
+        Game::boot();
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+
+        $this->assertCount(0, $user->games);
+
+        $game = new Game();
+        $user->games()->save($game);
+
+        $user = User::find($user->id);
+        $this->assertCount(1, $user->games);
+        $this->assertEquals($game->id, $user->games->first()->id);
+    }
+
 }

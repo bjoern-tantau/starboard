@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<game>
+    <starboard>
+        <name>StarBoard</name>
+        <characters>
+            <jack>
+                <name>Jack Reynolds</name>
+                <race>humans</race>
+                <color>blue</color>
+            </jack>
+            <minsk>
+                <name>Antigus Minsk</name>
+                <race>humans</race>
+                <color>red</color>
+            </minsk>
+            <tirius>
+                <name>Tirius</name>
+                <race>robots</race>
+                <color>yellow</color>
+            </tirius>
+            <alarus>
+                <name>Alarus</name>
+                <race>robots</race>
+                <color>orange</color>
+            </alarus>
+            <queen>
+                <name>The Queen of Knives</name>
+                <race>aliens</race>
+                <color>purple</color>
+            </queen>
+            <brain>
+                <name>The Overbrain</name>
+                <race>aliens</race>
+                <color>green</color>
+            </brain>
+        </characters>
+    </starboard>
+</game>

@@ -12,13 +12,6 @@ class User extends Base implements UserInterface, RemindableInterface
         RemindableTrait;
 
     /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'users';
-
-    /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
@@ -64,9 +57,9 @@ class User extends Base implements UserInterface, RemindableInterface
         'password' => 'required|min:6|confirmed',
     );
     public $update_rules = array(
-        'email'    => 'required|email|unique:users',
-        'name'     => 'required|alpha_dash|unique:users',
-        'password' => 'min:6',
+        'email'                 => 'required|email|unique:users',
+        'name'                  => 'required|alpha_dash|unique:users',
+        'password'              => 'min:6',
         'password_confirmation' => 'same:password',
     );
     public static $rules = array();
@@ -126,6 +119,16 @@ class User extends Base implements UserInterface, RemindableInterface
                 /* @var $query LaravelBook\Ardent\Builder */
                 $query->whereIn('name', $group);
             });
+    }
+
+    /**
+     * Games relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function games()
+    {
+        return $this->hasMany('Game', 'owner_id');
     }
 
 }

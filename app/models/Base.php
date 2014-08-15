@@ -2,7 +2,7 @@
 
 use LaravelBook\Ardent\Ardent;
 
-class Base extends Ardent
+abstract class Base extends Ardent
 {
 
     //Ardent / Modification for validation.
@@ -51,6 +51,30 @@ class Base extends Ardent
             }
         }
         return $rules;
+    }
+
+    public function __get($key)
+    {
+        $snake_key = snake_case($key);
+        return parent::__get($snake_key);
+    }
+
+    public function __set($key, $value)
+    {
+        $snake_key = snake_case($key);
+        parent::__set($snake_key, $value);
+    }
+
+    public function __isset($key)
+    {
+        $snake_key = snake_case($key);
+        return parent::__isset($snake_key);
+    }
+
+    public function __unset($key)
+    {
+        $snake_key = snake_case($key);
+        parent::__unset($snake_key);
     }
 
 }
