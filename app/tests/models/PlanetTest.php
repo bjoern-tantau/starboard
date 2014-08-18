@@ -14,6 +14,7 @@ class Models_PlanetTest extends TestCase
         Planet::boot();
         Player::boot();
         Game::boot();
+        NavigationRoute::boot();
     }
 
     /**
@@ -159,6 +160,70 @@ class Models_PlanetTest extends TestCase
         $planet->planetType = 'venus';
         $this->assertEquals('Venus', $planet->planet->name);
         $this->assertEquals('3', $planet->planet->routes);
+    }
+
+    /**
+     * Test that routes are available.
+     *
+     * @test
+     */
+    public function testRoutesAssociation()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::firstOrCreate(array('owner' => $user));
+        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
+        $planet = Planet::firstOrCreate(array('player' => $player));
+
+        $planet2 = Planet::create(array('player' => $player, 'planet_type' => 'mars'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet, 'planet2' => $planet2));
+
+        $this->assertCount(1, $planet->routes);
+        $this->assertEquals($navigationroute->id, $planet->routes->first()->id);
+    }
+
+    /**
+     * Test that adjacent planets are available.
+     *
+     * @test
+     */
+    public function testAdjacentPlanets()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::firstOrCreate(array('owner' => $user));
+        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
+        $planet = Planet::firstOrCreate(array('player' => $player));
+
+        $neighbors = $planet->adjacentPlanets;
+
+        $this->assertCount(0, $neighbors);
+
+        $planet2 = Planet::create(array('player' => $player, 'planet_type' => 'mars'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet, 'planet2' => $planet2));
+
+        $neighbors = $planet->adjacentPlanets;
+        $this->assertCount(1, $neighbors);
+
+        $planet3 = Planet::create(array('player' => $player, 'planet_type' => 'venus'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet, 'planet2' => $planet3));
+
+        $neighbors = $planet->adjacentPlanets;
+        $this->assertCount(2, $neighbors);
+
+        $planet4 = Planet::create(array('player' => $player, 'planet_type' => 'jupiter'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet2, 'planet2' => $planet4));
+
+        $this->assertTrue($planet->isAdjacent($planet2));
+        $this->assertFalse($planet->isAdjacent($planet4));
     }
 
 }

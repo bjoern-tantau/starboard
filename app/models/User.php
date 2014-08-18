@@ -5,6 +5,15 @@ use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableTrait;
 use Illuminate\Auth\Reminders\RemindableInterface;
 
+/**
+ * @property string $email E-Mail Address
+ * @property string $name Username
+ * @property string $password Hashed password.
+ * @property boolean $isAdmin Is the current user in the admin group?
+ * @property Group $groups Collection of Groups associated with this user.
+ * @property Game $ownGames Games owned by this user.
+ * @property Game $games Games being played by this user.
+ */
 class User extends Base implements UserInterface, RemindableInterface
 {
 
