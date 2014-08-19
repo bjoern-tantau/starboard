@@ -22,3 +22,5 @@ Route::get('logout', 'AuthController@getLogout')->before('auth');
 Route::controller('auth', 'AuthController');
 
 Route::controller('config', 'ConfigController');
+
+Route::controller('game', 'GameController');

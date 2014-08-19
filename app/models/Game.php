@@ -5,11 +5,16 @@
  * @property string $type Type of Game (used to load configuration XML)
  * @property integer $state State of the Game
  * @property integer $maxPlayers Maximum number of Players.
+ * @property integer $defaultMaxPlayers Default value of $maxPlayers.
  * @property User $owner Creator of the Game.
  * @property SimpleXMLElement $config Configuration XML
+ * @property array $availableTypes Available Game Types.
  */
 class Game extends GameBase
 {
+
+    const STATE_SETUP = 0;
+    const STATE_OPEN = 1;
 
     /**
      *  Attributes available for mass-filling.
@@ -40,7 +45,7 @@ class Game extends GameBase
      */
     public static $rules = array(
         'owner_id' => 'required',
-        'type' => 'type_exists',
+        'type'     => 'type_exists',
     );
 
     /**
@@ -53,7 +58,7 @@ class Game extends GameBase
     {
         $this->type = Config::get('game.default_type');
         $this->name = $this->config->name;
-        $this->maxPlayers = $this->config->characters->children()->count();
+        $this->maxPlayers = $this->defaultMaxPlayers;
         parent::__construct($attributes);
         return $this;
     }
@@ -121,15 +126,72 @@ class Game extends GameBase
     }
 
     /**
+     * Get default number of $maxPlayers.
+     *
+     * @return integer
+     */
+    public function getDefaultMaxPlayersAttribute()
+    {
+        return $this->config->characters->children()->count();
+    }
+
+    /**
+     * Get game types available.
+     *
+     * @return array
+     */
+    public function getAvailableTypesAttribute()
+    {
+        $types = array();
+        $dir = app_path(Config::get('game.config_dir'));
+        $dirs = File::directories($dir);
+        foreach ($dirs as $directory) {
+            $type = basename($directory);
+            if ($xml = self::getXml($type)->{$type}) {
+                $types[$type] = $xml->name;
+            }
+        }
+        return $types;
+    }
+
+    /**
      * Validate type existence.
      *
-	 * @param  string  $attribute
-	 * @param  mixed   $value
-	 * @return bool
+     * @param  string  $attribute
+     * @param  mixed   $value
+     * @return bool
      */
     public function validateTypeExists($attribute, $value)
     {
         $xml = self::getXml($value);
         return $xml->{$value}->count() == 1;
     }
+
+    /**
+     * Return all games in a certain state.
+     *
+     * @param LaravelBook\Ardent\Builder $builder
+     * @param int|array $state
+     * @returns LaravelBook\Ardent\Builder
+     */
+    public function scopeState($builder, $state)
+    {
+        if (!is_array($state)) {
+            $state = array($state);
+        }
+        return $builder->whereIn('state', $state);
+    }
+
+    /**
+     * Return all games in a open state.
+     *
+     * @param LaravelBook\Ardent\Builder $builder
+     * @param int|array $state
+     * @returns LaravelBook\Ardent\Builder
+     */
+    public function scopeOpen($builder)
+    {
+        return $builder->where('state', self::STATE_OPEN);
+    }
+
 }

@@ -8,6 +8,7 @@
         <ul class="nav">
             <li>{{ link_to('/', trans('Home')) }}</li>
             @if(Auth::check())
+            <li>{{ link_to_action('GameController@getIndex', trans('Games')) }}</li>
             <li>{{ link_to_route('user.show', trans('User Settings'), Auth::user()->id) }}</li>
             @if (Auth::user()->isAdmin)
             <li>{{ link_to_route('user.index', trans('Users')) }}</li>

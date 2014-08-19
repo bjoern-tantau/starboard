@@ -205,4 +205,115 @@ class Models_GameTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * Test state scope.
+     *
+     * @test
+     */
+    public function testGetGamesInState()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+
+        $game = Game::firstOrCreate(array('owner' => $user));
+        /* @var $game Game */
+
+        $stateGames = Game::state(Game::STATE_SETUP)->get();
+        $this->assertCount(1, $stateGames);
+        $this->assertEquals($game->id, $stateGames->first()->id);
+        $stateGames = Game::state(Game::STATE_OPEN)->get();
+        $this->assertCount(0, $stateGames);
+
+        $game->state = Game::STATE_OPEN;
+        $game->save();
+
+        $stateGames = Game::state(Game::STATE_SETUP)->get();
+        $this->assertCount(0, $stateGames);
+        $stateGames = Game::state(Game::STATE_OPEN)->get();
+        $this->assertCount(1, $stateGames);
+        $this->assertEquals($game->id, $stateGames->first()->id);
+
+        $stateGames = Game::state(array(Game::STATE_OPEN, Game::STATE_SETUP))->get();
+        $this->assertCount(1, $stateGames);
+        $this->assertEquals($game->id, $stateGames->first()->id);
+
+        $game->state = 2;
+        $game->save();
+        $stateGames = Game::state(array(Game::STATE_OPEN, Game::STATE_SETUP))->get();
+        $this->assertCount(0, $stateGames);
+    }
+
+    /**
+     * Test open scope.
+     *
+     * @test
+     */
+    public function testGetOpenGames()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+
+        $game = Game::firstOrCreate(array('owner' => $user));
+        /* @var $game Game */
+
+        $openGames = Game::open()->get();
+        $this->assertCount(0, $openGames);
+
+        $game->state = Game::STATE_OPEN;
+        $game->save();
+
+        $openGames = Game::open()->get();
+        $this->assertCount(1, $openGames);
+        $this->assertEquals($game->id, $openGames->first()->id);
+    }
+
+    /**
+     * What's the default setting for maxPlayers?
+     *
+     * @test
+     */
+    public function testGetDefaultMaxPlayers()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+
+        $game = Game::create(array('owner' => $user, 'max_players' => 4,));
+
+        $this->assertEquals(6, $game->defaultMaxPlayers);
+    }
+
+    /**
+     * What's the default setting for maxPlayers?
+     *
+     * @test
+     */
+    public function testGetAvailableTypes()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+
+        $game = Game::create(array('owner' => $user,));
+
+        $expected = array(
+            'starboard' => 'StarBoard',
+        );
+        $this->assertEquals($expected, $game->availableTypes);
+    }
+
 }
