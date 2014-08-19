@@ -15,7 +15,9 @@ class NavigationRoute extends GameBase
      */
     protected $fillable = array(
         'planet1',
+        'planet1_id',
         'planet2',
+        'planet2_id',
     );
 
     /**

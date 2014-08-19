@@ -2,9 +2,9 @@
 <game>
     <starboard>
         <name>StarBoard</name>
-        <default_character>jack</default_character>
+        <default_faction>jack</default_faction>
         <default_planet>sol</default_planet>
-        <characters>
+        <factions>
             <jack>
                 <name>Jack Reynolds</name>
                 <race>humans</race>
@@ -35,7 +35,7 @@
                 <race>aliens</race>
                 <color>green</color>
             </brain>
-        </characters>
+        </factions>
         <planets>
             <sol>
                 <name>Sol</name>

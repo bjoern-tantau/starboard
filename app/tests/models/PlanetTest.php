@@ -41,8 +41,8 @@ class Models_PlanetTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
 
         $expected = array(
             'planet_type' => 'sol',
@@ -50,7 +50,7 @@ class Models_PlanetTest extends TestCase
             'y_position'  => null,
         );
 
-        $planet = Planet::firstOrCreate(array('player' => $player));
+        $planet = Planet::firstOrCreate(array('player_id' => $player->id));
 
         $this->assertEquals($expected['planet_type'], $planet->planetType);
         $this->assertEquals($expected['x_position'], $planet->xPosition);
@@ -70,11 +70,11 @@ class Models_PlanetTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
 
         $data = array(
-            'player'      => $player,
+            'player_id'      => $player->id,
             'planet_type' => 'venus',
             'x_position'  => 2,
             'y_position'  => 3,
@@ -83,8 +83,8 @@ class Models_PlanetTest extends TestCase
 
         $loaded = Planet::find($planet->id);
         $this->assertEquals($data['planet_type'], $loaded->planetType);
-        $this->assertEquals($data['player']->id, $loaded->player->id);
-        $this->assertEquals($data['player']->id, $loaded->player_id);
+        $this->assertEquals($player->id, $loaded->player->id);
+        $this->assertEquals($player->id, $loaded->player_id);
         $this->assertEquals($data['x_position'], $loaded->xPosition);
         $this->assertEquals($data['y_position'], $loaded->yPosition);
     }
@@ -116,8 +116,8 @@ class Models_PlanetTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
         $planet->player = $player;
         $planet->planetType = 'qawfasf';
 
@@ -149,9 +149,9 @@ class Models_PlanetTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
-        $planet = Planet::firstOrCreate(array('player' => $player));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+        $planet = Planet::firstOrCreate(array('player_id' => $player->id));
 
         $this->assertInstanceOf('SimpleXMLElement', $planet->planet);
         $this->assertEquals('Sol', $planet->planet->name);
@@ -175,12 +175,12 @@ class Models_PlanetTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
-        $planet = Planet::firstOrCreate(array('player' => $player));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+        $planet = Planet::firstOrCreate(array('player_id' => $player->id));
 
-        $planet2 = Planet::create(array('player' => $player, 'planet_type' => 'mars'));
-        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet, 'planet2' => $planet2));
+        $planet2 = Planet::create(array('player_id' => $player->id, 'planet_type' => 'mars'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1_id' => $planet->id, 'planet2_id' => $planet2->id));
 
         $this->assertCount(1, $planet->routes);
         $this->assertEquals($navigationroute->id, $planet->routes->first()->id);
@@ -199,28 +199,28 @@ class Models_PlanetTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
-        $planet = Planet::firstOrCreate(array('player' => $player));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+        $planet = Planet::firstOrCreate(array('player_id' => $player->id));
 
         $neighbors = $planet->adjacentPlanets;
 
         $this->assertCount(0, $neighbors);
 
-        $planet2 = Planet::create(array('player' => $player, 'planet_type' => 'mars'));
-        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet, 'planet2' => $planet2));
+        $planet2 = Planet::create(array('player_id' => $player->id, 'planet_type' => 'mars'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1_id' => $planet->id, 'planet2_id' => $planet2->id));
 
         $neighbors = $planet->adjacentPlanets;
         $this->assertCount(1, $neighbors);
 
-        $planet3 = Planet::create(array('player' => $player, 'planet_type' => 'venus'));
-        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet, 'planet2' => $planet3));
+        $planet3 = Planet::create(array('player_id' => $player->id, 'planet_type' => 'venus'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1_id' => $planet->id, 'planet2_id' => $planet3->id));
 
         $neighbors = $planet->adjacentPlanets;
         $this->assertCount(2, $neighbors);
 
-        $planet4 = Planet::create(array('player' => $player, 'planet_type' => 'jupiter'));
-        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet2, 'planet2' => $planet4));
+        $planet4 = Planet::create(array('player_id' => $player->id, 'planet_type' => 'jupiter'));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1_id' => $planet2->id, 'planet2_id' => $planet4->id));
 
         $this->assertTrue($planet->isAdjacent($planet2));
         $this->assertFalse($planet->isAdjacent($planet4));

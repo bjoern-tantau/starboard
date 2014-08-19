@@ -84,9 +84,10 @@ class Models_GroupTest extends TestCase
         $this->assertCount(0, $group->users);
 
         $user = User::firstOrCreate(array(
-                'email'    => 'foo@bar.com',
-                'name'     => 'foobar',
-                'password' => 'password'
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
         ));
 
         $group->users()->save($user);

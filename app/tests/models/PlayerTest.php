@@ -40,14 +40,14 @@ class Models_PlayerTest extends TestCase
                 'password_confirmation' => 'password',
         ));
         $expected = array(
-            'character_type' => 'jack',
-            'active'         => true,
+            'faction_type' => 'jack',
+            'active'       => true,
         );
 
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
 
-        $this->assertEquals($expected['character_type'], $player->characterType);
+        $this->assertEquals($expected['faction_type'], $player->factionType);
         $this->assertEquals($expected['active'], $player->active);
     }
 
@@ -64,20 +64,20 @@ class Models_PlayerTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
         $data = array(
-            'user'           => $user,
-            'game'           => $game,
-            'character_type' => 'minsk',
-            'active'         => 1,
+            'user_id'      => $user->id,
+            'game_id'      => $game->id,
+            'faction_type' => 'minsk',
+            'active'       => 1,
         );
         $player = Player::firstOrCreate($data);
 
         $loaded = Player::find($player->id);
-        $this->assertEquals($data['character_type'], $loaded->characterType);
+        $this->assertEquals($data['faction_type'], $loaded->factionType);
         $this->assertEquals($data['active'], $loaded->active);
-        $this->assertEquals($data['user']->id, $loaded->user->id);
-        $this->assertEquals($data['game']->id, $loaded->game->id);
+        $this->assertEquals($user->id, $loaded->user->id);
+        $this->assertEquals($game->id, $loaded->game->id);
     }
 
     /**
@@ -96,7 +96,7 @@ class Models_PlayerTest extends TestCase
         $expected = array(
             'The user id field is required.',
             'The game id field is required.',
-            'The specified character type is not available.',
+            'The specified faction type is not available.',
         );
         $this->assertEquals($expected, $errors);
 
@@ -108,20 +108,20 @@ class Models_PlayerTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
         $player->user = $user;
         $player->game = $game;
-        $player->characterType = 'qawfasf';
+        $player->factionType = 'qawfasf';
 
         $this->assertFalse($player->save());
         $errors = $player->errors()->all();
         $this->assertCount(1, $errors);
         $expected = array(
-            'The specified character type is not available.',
+            'The specified faction type is not available.',
         );
         $this->assertEquals($expected, $errors);
 
-        $player->characterType = 'jack';
+        $player->factionType = 'jack';
 
         $this->assertTrue($player->save());
         $errors = $player->errors()->all();
@@ -129,11 +129,11 @@ class Models_PlayerTest extends TestCase
     }
 
     /**
-     * Test that character XML Data is available and changing with the character name.
+     * Test that faction XML Data is available and changing with the faction name.
      *
      * @test
      */
-    public function testCharacterData()
+    public function testFactionData()
     {
         $user = User::firstOrCreate(array(
                 'email'                 => 'foo@bar.com',
@@ -141,18 +141,79 @@ class Models_PlayerTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
 
-        $this->assertInstanceOf('SimpleXMLElement', $player->character);
-        $this->assertEquals('Jack Reynolds', $player->character->name);
-        $this->assertEquals('humans', $player->character->race);
-        $this->assertEquals('blue', $player->character->color);
+        $this->assertInstanceOf('SimpleXMLElement', $player->faction);
+        $this->assertEquals('Jack Reynolds', $player->faction->name);
+        $this->assertEquals('humans', $player->faction->race);
+        $this->assertEquals('blue', $player->faction->color);
 
-        $player->characterType = 'queen';
-        $this->assertEquals('The Queen of Knives', $player->character->name);
-        $this->assertEquals('aliens', $player->character->race);
-        $this->assertEquals('purple', $player->character->color);
+        $player->factionType = 'queen';
+        $this->assertEquals('The Queen of Knives', $player->faction->name);
+        $this->assertEquals('aliens', $player->faction->race);
+        $this->assertEquals('purple', $player->faction->color);
+
+        $factions = $player->factions;
+        $this->assertInstanceOf('SimpleXMLElement', $factions);
+        $this->assertEquals(6, $factions->count());
+        $this->assertEquals('Jack Reynolds', $factions->jack->name);
+
+        $availableTypes = $player->availableFactionTypes;
+        $expectedTypes = array(
+            'jack'   => 'Jack Reynolds',
+            'minsk'  => 'Antigus Minsk',
+            'tirius' => 'Tirius',
+            'alarus' => 'Alarus',
+            'queen'  => 'The Queen of Knives',
+            'brain'  => 'The Overbrain',
+        );
+
+        $this->assertEquals($expectedTypes, $availableTypes);
+    }
+
+    /**
+     * Can a player be created by giving a game and user?
+     *
+     * @test
+     */
+    public function testCanFindAndCreatePlayer()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player1 = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+
+        $this->assertNotNull($player1->id);
+
+        $player2 = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+
+        $this->assertEquals($player1->id, $player2->id);
+    }
+
+    /**
+     * Test that only one user may have a player per game.
+     *
+     * @test
+     */
+    public function testUniqueUserPerGame()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+
+        $player = Player::create(array('user_id' => $user->id, 'game_id' => $game->id));
+
+        $this->setExpectedException('\Illuminate\Database\QueryException');
+        $player = Player::create(array('user_id' => $user->id, 'game_id' => $game->id));
     }
 
 }

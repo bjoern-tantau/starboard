@@ -41,14 +41,14 @@ class Models_NavigationRouteTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
-        $planet1 = Planet::firstOrCreate(array('player' => $player));
-        $planet2 = Planet::create(array('player' => $player, 'planet_type' => 'mars'));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+        $planet1 = Planet::firstOrCreate(array('player_id' => $player->id));
+        $planet2 = Planet::create(array('player_id' => $player->id, 'planet_type' => 'mars'));
 
         $data = array(
-            'planet1' => $planet1,
-            'planet2' => $planet2,
+            'planet1_id' => $planet1->id,
+            'planet2_id' => $planet2->id,
         );
         $navigationroute = NavigationRoute::firstOrCreate($data);
 
@@ -81,9 +81,9 @@ class Models_NavigationRouteTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
-        $planet1 = Planet::firstOrCreate(array('player' => $player));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+        $planet1 = Planet::firstOrCreate(array('player_id' => $player->id));
 
         $navigationroute->planet1 = $planet1;
 
@@ -102,7 +102,7 @@ class Models_NavigationRouteTest extends TestCase
         );
         $this->assertEquals($expected, $errors);
 
-        $planet2 = Planet::create(array('player' => $player, 'planet_type' => 'mars'));
+        $planet2 = Planet::create(array('player_id' => $player->id, 'planet_type' => 'mars'));
         $navigationroute->planet2 = $planet2;
 
         $this->assertTrue($navigationroute->save());
@@ -123,19 +123,19 @@ class Models_NavigationRouteTest extends TestCase
                 'password'              => 'password',
                 'password_confirmation' => 'password',
         ));
-        $game = Game::firstOrCreate(array('owner' => $user));
-        $player = Player::firstOrCreate(array('user' => $user, 'game' => $game));
-        $planet1 = Planet::firstOrCreate(array('player' => $player));
-        $planet2 = Planet::create(array('player' => $player, 'planet_type' => 'mars'));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::firstOrCreate(array('user_id' => $user->id, 'game_id' => $game->id));
+        $planet1 = Planet::firstOrCreate(array('player_id' => $player->id));
+        $planet2 = Planet::create(array('player_id' => $player->id, 'planet_type' => 'mars'));
 
-        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet1));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1_id' => $planet1->id));
 
         $planets = $navigationroute->planets;
 
         $this->assertEquals($planets->first()->id, $planet1->id);
         $this->assertCount(1, $planets);
 
-        $navigationroute = NavigationRoute::firstOrCreate(array('planet1' => $planet1, 'planet2' => $planet2));
+        $navigationroute = NavigationRoute::firstOrCreate(array('planet1_id' => $planet1->id, 'planet2_id' => $planet2->id));
         $planets = $navigationroute->planets;
         $this->assertCount(2, $planets);
     }

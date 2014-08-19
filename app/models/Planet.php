@@ -19,6 +19,7 @@ class Planet extends GameBase
      */
     protected $fillable = array(
         'player',
+        'player_id',
         'planet_type',
         'x_position',
         'y_position',

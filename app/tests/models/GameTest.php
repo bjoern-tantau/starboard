@@ -165,7 +165,7 @@ class Models_GameTest extends TestCase
                 'password_confirmation' => 'password',
         ));
 
-        $game = Game::firstOrCreate(array('owner' => $owner));
+        $game = Game::firstOrCreate(array('owner_id' => $owner->id));
 
         $this->assertCount(0, $game->users);
 
@@ -196,7 +196,7 @@ class Models_GameTest extends TestCase
                 'password_confirmation' => 'password',
         ));
 
-        $game = Game::firstOrCreate(array('owner' => $user));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
         $actual = $game->config;
         $this->assertInstanceOf('SimpleXMLElement', $actual);
 
@@ -219,7 +219,7 @@ class Models_GameTest extends TestCase
                 'password_confirmation' => 'password',
         ));
 
-        $game = Game::firstOrCreate(array('owner' => $user));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
         /* @var $game Game */
 
         $stateGames = Game::state(Game::STATE_SETUP)->get();
@@ -261,7 +261,7 @@ class Models_GameTest extends TestCase
                 'password_confirmation' => 'password',
         ));
 
-        $game = Game::firstOrCreate(array('owner' => $user));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
         /* @var $game Game */
 
         $openGames = Game::open()->get();
@@ -314,6 +314,75 @@ class Models_GameTest extends TestCase
             'starboard' => 'StarBoard',
         );
         $this->assertEquals($expected, $game->availableTypes);
+    }
+
+    /**
+     * Can we get the next faction that is not used by a player?
+     * Defaults to first faction if all are used.
+     *
+     * @test
+     */
+    public function testGetNextFactionType()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::create(array('owner' => $user,));
+        $this->assertEquals('jack', $game->nextFactionType);
+
+        $player = Player::create(array('user' => $user, 'game' => $game));
+        unset($game->players);
+        $this->assertEquals('minsk', $game->nextFactionType);
+
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo2@bar.com',
+                'name'                  => 'foobar2',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $player = Player::create(array('user' => $user, 'game' => $game, 'faction_type' => $game->nextFactionType));
+        unset($game->players);
+        $this->assertEquals('tirius', $game->nextFactionType);
+
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo3@bar.com',
+                'name'                  => 'foobar3',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $player = Player::create(array('user' => $user, 'game' => $game, 'faction_type' => 'alarus'));
+        unset($game->players);
+        $this->assertEquals('tirius', $game->nextFactionType);
+
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo4@bar.com',
+                'name'                  => 'foobar4',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $player = Player::create(array('user' => $user, 'game' => $game, 'faction_type' => 'tirius'));
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo5@bar.com',
+                'name'                  => 'foobar5',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $player = Player::create(array('user' => $user, 'game' => $game, 'faction_type' => 'queen'));
+        unset($game->players);
+        $this->assertEquals('brain', $game->nextFactionType);
+
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo6@bar.com',
+                'name'                  => 'foobar6',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $player = Player::create(array('user' => $user, 'game' => $game, 'faction_type' => 'brain'));
+        unset($game->players);
+        $this->assertEquals('jack', $game->nextFactionType);
     }
 
 }

@@ -24,3 +24,6 @@ Route::controller('auth', 'AuthController');
 Route::controller('config', 'ConfigController');
 
 Route::controller('game', 'GameController');
+
+Latchet::connection('Connection');
+Latchet::topic('game/{id}', 'GameTopic');

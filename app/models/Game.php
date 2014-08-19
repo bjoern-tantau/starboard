@@ -9,6 +9,7 @@
  * @property User $owner Creator of the Game.
  * @property SimpleXMLElement $config Configuration XML
  * @property array $availableTypes Available Game Types.
+ * @property string $nextFactionType Next available unused faction type.
  */
 class Game extends GameBase
 {
@@ -27,6 +28,7 @@ class Game extends GameBase
         'state',
         'max_players',
         'owner',
+        'owner_id',
     );
 
     /**
@@ -132,7 +134,7 @@ class Game extends GameBase
      */
     public function getDefaultMaxPlayersAttribute()
     {
-        return $this->config->characters->children()->count();
+        return $this->config->factions->children()->count();
     }
 
     /**
@@ -152,6 +154,30 @@ class Game extends GameBase
             }
         }
         return $types;
+    }
+
+    /**
+     * Get next unused player faction type.
+     *
+     * @return string
+     */
+    public function getNextFactionTypeAttribute()
+    {
+        $factions = array();
+        foreach ($this->config->factions->children() as $type => $faction) {
+            $factions[$type] = $faction;
+        }
+
+        reset($factions);
+        $firstType = key($factions);
+
+        foreach ($this->players as $player) {
+            unset($factions[$player->factionType]);
+        }
+        if (!empty($factions)) {
+            return key($factions);
+        }
+        return $firstType;
     }
 
     /**

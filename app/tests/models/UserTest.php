@@ -236,11 +236,11 @@ class Models_UserTest extends TestCase
                 'password_confirmation' => 'password',
         ));
 
-        $game = Game::create(array('owner' => $user));
+        $game = Game::create(array('owner_id' => $user->id));
 
         $this->assertCount(0, $user->games);
 
-        $player = Player::create(array('user' => $user, 'game' => $game));
+        $player = Player::create(array('user_id' => $user->id, 'game_id' => $game->id));
 
         $user = User::find($user->id);
         $this->assertCount(1, $user->games);

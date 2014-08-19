@@ -3,6 +3,9 @@
     <head>
         <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
         <title>{{{ $title or 'Starboard' }}}</title>
+        {{ HTML::script('js/jquery.js') }}
+        {{ HTML::script('js/autobahn.js') }}
+        @yield('head')
     </head>
     <body>
         <ul class="nav">

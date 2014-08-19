@@ -84,8 +84,15 @@ class GameController extends BaseController
             case GAME::STATE_SETUP:
                 return Redirect::action('GameController@getCreate', $game->id);
             case GAME::STATE_OPEN:
+                $player = Player::firstOrNew(array('game_id' => $game->id, 'user_id' => Auth::user()->id,));
+                if (!$player->id) {
+                    $player->factionType = $game->nextFactionType;
+                    $player->save();
+                    $game->players->add($player);
+                }
                 $this->layout->content = View::make('game.show.open', array(
-                        'game' => $game,
+                        'game'   => $game,
+                        'player' => $player,
                 ));
                 break;
             default:

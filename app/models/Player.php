@@ -5,9 +5,11 @@
  * @property User $user User
  * @property integer $game_id ID of associated Game.
  * @property Game $game Game
- * @property string $characterType Character Type from XML.
+ * @property string $factionType Faction Type from XML.
  * @property boolean $active Is Player still alive?
- * @property SimpleXMLElement $character Character XML data.
+ * @property SimpleXMLElement $faction Faction XML data.
+ * @property SimpleXMLElement $factions Faction XML data of all factions.
+ * @property array $availableFactionTypes
  */
 class Player extends GameBase
 {
@@ -19,8 +21,10 @@ class Player extends GameBase
      */
     protected $fillable = array(
         'user',
+        'user_id',
         'game',
-        'character_type',
+        'game_id',
+        'faction_type',
     );
 
     /**
@@ -29,8 +33,12 @@ class Player extends GameBase
      * @var array
      */
     protected $attributes = array(
-        'character_type' => 'jack',
-        'active'         => true,
+        'faction_type' => 'jack',
+        'active'       => true,
+    );
+    public static $relationsData = array(
+        'user' => array(self::BELONGS_TO, 'User'),
+        'game' => array(self::BELONGS_TO, 'Game'),
     );
 
     /**
@@ -39,29 +47,19 @@ class Player extends GameBase
      * @var array
      */
     public static $rules = array(
-        'user_id'        => 'required',
-        'game_id'        => 'required',
-        'character_type' => 'character_type_exists',
+        'user_id'      => 'required',
+        'game_id'      => 'required',
+        'faction_type' => 'faction_type_exists',
     );
 
     public function validate(array $rules = array(), array $customMessages = array())
     {
         $player = $this;
-        Validator::extend('character_type_exists', function ($attribute, $value, $parameters) use($player) {
+        Validator::extend('faction_type_exists', function ($attribute, $value, $parameters) use($player) {
             return $player->validateTypeExists($attribute, $value);
         }
-            , 'The specified character type is not available.');
+            , 'The specified faction type is not available.');
         return parent::validate($rules, $customMessages);
-    }
-
-    /**
-     * Associate player with user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-        return $this->belongsTo('User');
     }
 
     /**
@@ -76,16 +74,6 @@ class Player extends GameBase
     }
 
     /**
-     * Associate player with game.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function game()
-    {
-        return $this->belongsTo('Game');
-    }
-
-    /**
      * Set game_id from given Game.
      *
      * @param Game $game
@@ -97,19 +85,49 @@ class Player extends GameBase
     }
 
     /**
-     * Get character attribute.
+     * Get faction attribute.
      *
      * @return SimpleXMLElement
      */
-    public function getCharacterAttribute()
+    public function getFactionAttribute()
+    {
+        if ($factions = $this->factions) {
+            return $factions->{$this->factionType};
+        }
+        return false;
+    }
+
+    /**
+     * Get factions attribute.
+     *
+     * @return SimpleXMLElement
+     */
+    public function getFactionsAttribute()
     {
         if ($game = $this->game) {
             $xml = self::getXml($game->type);
-            if ($xml && $xml->{$game->type} && $xml->{$game->type}->characters) {
-                return $xml->{$game->type}->characters->{$this->characterType};
+            if ($xml && $xml->{$game->type} && $xml->{$game->type}->factions) {
+                return $xml->{$game->type}->factions->children();
             }
         }
         return false;
+    }
+
+    /**
+     * Get faction types available.
+     *
+     * @return array
+     */
+    public function getAvailableFactionTypesAttribute()
+    {
+        $types = array();
+
+        if ($factions = $this->factions) {
+            foreach ($factions as $factionType => $faction) {
+                $types[$factionType] = $faction->name;
+            }
+        }
+        return $types;
     }
 
     /**
@@ -121,8 +139,8 @@ class Player extends GameBase
      */
     public function validateTypeExists($attribute, $value)
     {
-        if ($character = $this->character) {
-            return $character->count() == 1;
+        if ($faction = $this->faction) {
+            return $faction->count() == 1;
         }
         return false;
     }
