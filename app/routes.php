@@ -16,6 +16,7 @@ Route::pattern('id', '[0-9]+');
 Route::get('/', 'HomeController@getIndex');
 
 Route::resource('user', 'UserController');
+Route::resource('player', 'PlayerController');
 
 Route::get('login', 'AuthController@getLogin')->before('guest');
 Route::get('logout', 'AuthController@getLogout')->before('auth');
