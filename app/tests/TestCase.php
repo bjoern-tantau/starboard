@@ -20,6 +20,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
     {
         Artisan::call('migrate');
         Mail::pretend(true);
+        Latchet::shouldReceive('publish')->zeroOrMoreTimes();
     }
 
     protected function resetEvents()

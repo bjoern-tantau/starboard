@@ -15,7 +15,8 @@ class Game extends GameBase
 {
 
     const STATE_SETUP = 0;
-    const STATE_OPEN = 1;
+    const STATE_OPEN = 10;
+    const STATE_SETUP_GALAXY = 20;
 
     /**
      *  Attributes available for mass-filling.

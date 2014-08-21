@@ -10,7 +10,8 @@
         "way/generators": "2.*",
         "sidney/latchet": "dev-master",
         "cboden/ratchet": "dev-master",
-        "react/zmq": "dev-master"
+        "react/zmq": "dev-master",
+        "mockery/mockery": "0.9.1"
     },
     "autoload": {
         "classmap": [
