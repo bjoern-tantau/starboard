@@ -73,6 +73,7 @@ class PlayerController extends \BaseController
     public function update($id)
     {
         $player = Player::find($id);
+        /* @var $player Player */
         if (!$player) {
             return App::abort(404);
         }
@@ -81,20 +82,25 @@ class PlayerController extends \BaseController
         $player->fill(Input::only(array(
                 'faction_type',
         )));
-
-        if (Request::ajax()) {
-            if ($canEdit) {
-                if ($player->save()) {
-                    return Response::json(array(
-                            'type'     => 'success',
-                            'messages' => array(
-                                'Player saved.'
-                            ),
-                            'objects'  => array(
-                                'player' => $player,
-                            ),
-                    ));
-                } else {
+        if ($canEdit) {
+            if ($player->save()) {
+                $player->faction = $player->faction; // initialize faction so that it is passed back.
+                $message = array(
+                    'type'     => 'success',
+                    'messages' => array(
+                        'Player saved.'
+                    ),
+                    'objects'  => array(
+                        'player' => $player,
+                    ),
+                );
+                Latchet::publish('game/' . $player->game->id, $message);
+                if (Request::ajax()) {
+                    return Response::json($message);
+                }
+                return Redirect::action('GameController@getShow', $player->game->id)->with('message', 'Player saved.');
+            } else {
+                if (Request::ajax()) {
                     return Response::json(array(
                             'type'     => 'error',
                             'messages' => $player->errors(),
@@ -103,19 +109,10 @@ class PlayerController extends \BaseController
                             ),
                     ));
                 }
-            } else {
-                return Redirect::guest('login');
+                return Redirect::action('GameController@getShow', $player->game->id)->withErrors($player->errors());
             }
         } else {
-            if ($canEdit) {
-                if ($player->save()) {
-                    return Redirect::action('GameController@getShow', $player->game->id)->with('message', 'Player saved.');
-                } else {
-                    return Redirect::action('GameController@getShow', $player->game->id)->withErrors($player->errors());
-                }
-            } else {
-                return Redirect::guest('login');
-            }
+            return Redirect::guest('login');
         }
     }
 
