@@ -69,6 +69,7 @@ class Controllers_PlayerControllerTest extends TestCase
             ), array(), array('HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'));
         $this->assertTrue($this->client->getResponse()->isOk());
         $this->assertJson($this->client->getResponse()->getContent());
+        $player->faction_type = 'minsk';
         $expected = (object) array(
                 'type'     => 'success',
                 'messages' => array(
@@ -84,6 +85,7 @@ class Controllers_PlayerControllerTest extends TestCase
                         'updated_at'   => (string) $player->updatedAt,
                         'created_at'   => (string) $player->createdAt,
                         'game'         => (object) $game->toArray(),
+                        'faction'      => (object) (array) $player->faction,
                     ),
                 ),
         );
