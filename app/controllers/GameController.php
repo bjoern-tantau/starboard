@@ -98,6 +98,11 @@ class GameController extends BaseController
                         'player' => $player,
                 ));
                 break;
+            case Game::STATE_SETUP_GALAXY:
+                $this->layout->content = View::make('game.show.galaxy', array(
+                        'game' => $game,
+                ));
+                break;
             default:
                 $this->layout->content = View::make('game.show.index', array(
                         'game' => $game,
