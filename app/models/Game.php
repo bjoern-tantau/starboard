@@ -10,6 +10,7 @@
  * @property SimpleXMLElement $config Configuration XML
  * @property array $availableTypes Available Game Types.
  * @property string $nextFactionType Next available unused faction type.
+ * @property Player $activePlayer Player that is allowed to do a move.
  */
 class Game extends GameBase
 {
@@ -106,6 +107,27 @@ class Game extends GameBase
     public function players()
     {
         return $this->hasMany('Player');
+    }
+
+    /**
+     * Associate active player with game.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function activePlayer()
+    {
+        return $this->belongsTo('Player', 'active_player_id');
+    }
+
+    /**
+     * Set active_player_id from given player.
+     *
+     * @param Player $player
+     * @return void
+     */
+    public function setActivePlayerAttribute(Player $player)
+    {
+        $this->active_player_id = $player->id;
     }
 
     /**

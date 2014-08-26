@@ -39,10 +39,11 @@ class Models_GameTest extends TestCase
                 'password_confirmation' => 'password',
         ));
         $expected = array(
-            'name'        => 'StarBoard',
-            'type'        => 'starboard',
-            'state'       => 0,
-            'max_players' => 6,
+            'name'             => 'StarBoard',
+            'type'             => 'starboard',
+            'state'            => 0,
+            'max_players'      => 6,
+            'active_player_id' => null,
         );
 
         $game = Game::create(array('owner' => $user));
@@ -51,6 +52,8 @@ class Models_GameTest extends TestCase
         $this->assertEquals($expected['type'], $game->type);
         $this->assertEquals($expected['state'], $game->state);
         $this->assertEquals($expected['max_players'], $game->maxPlayers);
+        $this->assertEquals($expected['active_player_id'], $game->activePlayerId);
+        $this->assertEquals($expected['active_player_id'], $game->activePlayer);
     }
 
     /**
@@ -383,6 +386,35 @@ class Models_GameTest extends TestCase
         $player = Player::create(array('user' => $user, 'game' => $game, 'faction_type' => 'brain'));
         unset($game->players);
         $this->assertEquals('jack', $game->nextFactionType);
+    }
+
+    /**
+     * Is the active player association working?
+     *
+     * @test
+     */
+    public function testActivePlayerAssociation()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = new Game();
+        $game->owner = $user;
+        $game->save();
+
+        $player = Player::create(array('user' => $user, 'game' => $game));
+
+        $game->activePlayer = $player;
+        $game->save();
+
+        $game = Game::find($game->id);
+
+        $this->assertInstanceOf('Player', $game->activePlayer);
+        $this->assertEquals($player->id, $game->activePlayer->id);
+        $this->assertEquals($player->id, $game->active_player_id);
     }
 
 }

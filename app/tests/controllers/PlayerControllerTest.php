@@ -84,11 +84,22 @@ class Controllers_PlayerControllerTest extends TestCase
                         'active'       => '1',
                         'updated_at'   => (string) $player->updatedAt,
                         'created_at'   => (string) $player->createdAt,
-                        'game'         => (object) $game->toArray(),
+                        'game'         => (object) array(
+                            'state'            => (string) $game->state,
+                            'type'             => $game->type,
+                            'name'             => (string) $game->name,
+                            'max_players'      => (string) $game->maxPlayers,
+                            'owner_id'         => (string) $game->ownerId,
+                            'updated_at'       => (string) $game->updated_at,
+                            'created_at'       => (string) $game->created_at,
+                            'id'               => (string) $game->id,
+                            'active_player_id' => $game->activePlayerId,
+                        ),
                         'faction'      => (object) (array) $player->faction,
                     ),
                 ),
         );
+        $expected = json_decode(json_encode($expected));
         $actual = json_decode($this->client->getResponse()->getContent());
         $this->assertEquals($expected, $actual);
 
