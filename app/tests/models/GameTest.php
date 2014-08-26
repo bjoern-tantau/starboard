@@ -415,6 +415,70 @@ class Models_GameTest extends TestCase
         $this->assertInstanceOf('Player', $game->activePlayer);
         $this->assertEquals($player->id, $game->activePlayer->id);
         $this->assertEquals($player->id, $game->active_player_id);
+
+        $game->activePlayer = null;
+        $game->save();
+        $game = Game::find($game->id);
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player->id, $game->nextPlayer->id);
+        $game->activePlayer = $game->nextPlayer;
+        $game->save();
+
+
+        $user2 = User::firstOrCreate(array(
+                'email'                 => 'foo2@bar.com',
+                'name'                  => 'foobar2',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $player2 = Player::create(array('user' => $user2, 'game' => $game));
+        $user3 = User::firstOrCreate(array(
+                'email'                 => 'foo3@bar.com',
+                'name'                  => 'foobar3',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $player3 = Player::create(array('user' => $user3, 'game' => $game));
+
+        $game = Game::find($game->id);
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player2->id, $game->nextPlayer->id);
+
+        $game->activePlayer = $game->nextPlayer;
+        $game->save();
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player3->id, $game->nextPlayer->id);
+
+        $game->activePlayer = $game->nextPlayer;
+        $game->save();
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player->id, $game->nextPlayer->id);
+
+        $game->state = Game::STATE_SETUP_GALAXY;
+        $game->activePlayer = $player;
+        $game->save();
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player2->id, $game->nextPlayer->id);
+
+        $game->activePlayer = $game->nextPlayer;
+        $game->save();
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player3->id, $game->nextPlayer->id);
+
+        $game->activePlayer = $game->nextPlayer;
+        $game->save();
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player2->id, $game->nextPlayer->id);
+
+        $game->activePlayer = $game->nextPlayer;
+        $game->save();
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player->id, $game->nextPlayer->id);
+
+        $game->activePlayer = $game->nextPlayer;
+        $game->save();
+        $this->assertInstanceOf('Player', $game->nextPlayer);
+        $this->assertEquals($player2->id, $game->nextPlayer->id);
     }
 
 }

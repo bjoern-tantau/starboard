@@ -99,6 +99,7 @@ class GameController extends BaseController
                 ));
                 break;
             case Game::STATE_SETUP_GALAXY:
+            case Game::STATE_SETUP_GALAXY_REVERSE:
                 $this->layout->content = View::make('game.show.galaxy', array(
                         'game' => $game,
                 ));

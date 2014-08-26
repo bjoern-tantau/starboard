@@ -18,6 +18,7 @@ class Game extends GameBase
     const STATE_SETUP = 0;
     const STATE_OPEN = 10;
     const STATE_SETUP_GALAXY = 20;
+    const STATE_SETUP_GALAXY_REVERSE = 21; // When the first batch of players has placed their planets they will be traversed in reverse order.
 
     /**
      *  Attributes available for mass-filling.
@@ -125,9 +126,13 @@ class Game extends GameBase
      * @param Player $player
      * @return void
      */
-    public function setActivePlayerAttribute(Player $player)
+    public function setActivePlayerAttribute(Player $player = null)
     {
-        $this->active_player_id = $player->id;
+        if (is_null($player)) {
+            $this->active_player_id = null;
+        } else {
+            $this->active_player_id = $player->id;
+        }
     }
 
     /**
@@ -201,6 +206,50 @@ class Game extends GameBase
             return key($factions);
         }
         return $firstType;
+    }
+
+    /**
+     * Get the next player to be active.
+     *
+     * @return Player
+     */
+    public function getNextPlayerAttribute()
+    {
+        $players = $this->players;
+        if (is_null($this->activePlayer)) {
+            return $players->first();
+        }
+
+        if ($this->state == self::STATE_SETUP_GALAXY) {
+            if ($this->activePlayerId == $players->last()->id) {
+                $players = $players->reverse();
+                $this->state = self::STATE_SETUP_GALAXY_REVERSE;
+                $this->save();
+            }
+        } elseif ($this->state == self::STATE_SETUP_GALAXY_REVERSE) {
+            if ($this->activePlayerId == $players->first()->id) {
+                $this->state = self::STATE_SETUP_GALAXY;
+                $this->save();
+            } else {
+                $players = $players->reverse();
+            }
+        }
+
+        if ($this->activePlayerId == $players->first()->id) {
+            return $players->get(1);
+        }
+        if ($this->activePlayerId == $players->last()->id) {
+            return $players->first();
+        }
+        $previousPlayer = null;
+        foreach ($players as $player) {
+            if (!is_null($previousPlayer) && $this->activePlayerId == $previousPlayer->id) {
+                return $player;
+            }
+            $previousPlayer = $player;
+        }
+
+        return null;
     }
 
     /**
