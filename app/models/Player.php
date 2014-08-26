@@ -10,6 +10,7 @@
  * @property SimpleXMLElement $faction Faction XML data.
  * @property SimpleXMLElement $factions Faction XML data of all factions.
  * @property array $availableFactionTypes
+ * @property Planet $planets Collection of Planets.
  */
 class Player extends GameBase
 {
@@ -128,6 +129,16 @@ class Player extends GameBase
             }
         }
         return $types;
+    }
+
+    /**
+     * Associate planets with player.
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function planets()
+    {
+        return $this->hasMany('Planet');
     }
 
     /**

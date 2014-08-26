@@ -84,9 +84,10 @@ class Planet extends GameBase
     {
         if ($player = $this->player) {
             if ($game = $player->game) {
-                $xml = self::getXml($game->type);
-                if ($xml && $xml->{$game->type} && $xml->{$game->type}->planets) {
-                    return $xml->{$game->type}->planets->{$this->planetType};
+                /* @var $game Game */
+                $xml = $game->config;
+                if ($xml && $xml->planets) {
+                    return $xml->planets->{$this->planetType};
                 }
             }
         }
@@ -160,6 +161,23 @@ class Planet extends GameBase
         ;
         $result = $query->get(array('id'));
         return (bool) $result;
+    }
+
+    /**
+     * Get randomized Planet Types.
+     *
+     * @param Game $game
+     * @param integer $count
+     * @return array
+     */
+    public static function getRandomPlanetTypes(Game $game, $count = null)
+    {
+        $types = array();
+        foreach ($game->config->planets->children() as $type => $planet) {
+            $types[] = $type;
+        }
+        shuffle($types);
+        return array_slice($types, 0, $count);
     }
 
 }

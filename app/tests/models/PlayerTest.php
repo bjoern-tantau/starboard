@@ -216,4 +216,32 @@ class Models_PlayerTest extends TestCase
         $player = Player::create(array('user_id' => $user->id, 'game_id' => $game->id));
     }
 
+    /**
+     * Test planets association.
+     *
+     * @test
+     */
+    public function testPlanetAssociation()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+        $player = Player::create(array('user_id' => $user->id, 'game_id' => $game->id));
+        $this->assertCount(0, $player->planets);
+
+        $planet = Planet::create(array('player' => $player));
+        $player = Player::find($player->id);
+        $this->assertCount(1, $player->planets);
+        $this->assertEquals($planet->id, $player->planets->first()->id);
+
+        $planet = Planet::create(array('player' => $player));
+        $player = Player::find($player->id);
+        $this->assertCount(2, $player->planets);
+        $this->assertNotEquals($planet->id, $player->planets->first()->id);
+    }
+
 }

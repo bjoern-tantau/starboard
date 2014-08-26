@@ -226,4 +226,50 @@ class Models_PlanetTest extends TestCase
         $this->assertFalse($planet->isAdjacent($planet4));
     }
 
+    /**
+     * Get Random Planet Types.
+     *
+     * @test
+     */
+    public function testGetRandomPlanetTypes()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::firstOrCreate(array('owner_id' => $user->id));
+
+        $actual = Planet::getRandomPlanetTypes($game);
+        $this->assertCount(12, $actual);
+        $expected = array(
+            'sol',
+            'mercury',
+            'venus',
+            'terra',
+            'luna',
+            'mars',
+            'jupiter',
+            'europa',
+            'saturn',
+            'uranus',
+            'neptune',
+            'pluto',
+        );
+        $this->assertNotEquals($expected, $actual, 'Chance gave you an array of planets in the original order.');
+        sort($actual);
+        sort($expected);
+        $this->assertEquals($expected, $actual);
+
+        $actual = Planet::getRandomPlanetTypes($game, 4);
+        $this->assertCount(4, $actual);
+
+        $actual = Planet::getRandomPlanetTypes($game, 100);
+        $this->assertCount(12, $actual);
+        sort($actual);
+        sort($expected);
+        $this->assertEquals($expected, $actual);
+    }
+
 }

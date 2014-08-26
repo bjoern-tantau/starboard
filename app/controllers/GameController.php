@@ -142,6 +142,19 @@ class GameController extends BaseController
                     }
                     $usedFactions[$player->factionType] = true;
                 }
+                $planetTypes = Planet::getRandomPlanetTypes($game);
+                $planetsPerPlayer = Config::get('game.planets_per_player');
+                $i = 0;
+                foreach ($game->players as $player) {
+                    $types = array_slice($planetTypes, $i, $planetsPerPlayer);
+                    foreach ($types as $type) {
+                        Planet::create(array(
+                            'player'      => $player,
+                            'planet_type' => $type,
+                        ));
+                    }
+                    $i = $i + $planetsPerPlayer;
+                }
                 $game->state = Game::STATE_SETUP_GALAXY;
                 $game->save();
                 break;

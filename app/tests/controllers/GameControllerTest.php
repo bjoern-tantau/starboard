@@ -228,6 +228,10 @@ class Controllers_GameControllerTest extends TestCase
         $this->assertTrue($this->client->getResponse()->isRedirect(action('GameController@getShow', $game->id)));
         $game = Game::find($game->id);
         $this->assertEquals(Game::STATE_SETUP_GALAXY, $game->state);
+        $player1 = Player::find($player1->id);
+        $this->assertCount(2, $player1->planets);
+        $player2 = Player::find($player2->id);
+        $this->assertCount(2, $player2->planets);
     }
 
 }
