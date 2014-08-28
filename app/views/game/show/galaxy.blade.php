@@ -21,52 +21,58 @@
             width: 800,
             height: 500
         });
-        var background = new Kinetic.Layer({id: 'background'});
-        stage.add(background);
-        background.add(new Kinetic.Rect({
+        stage.add(new Kinetic.Layer().add(new Kinetic.Rect({
             width: stage.width(),
             height: stage.height(),
-            fillRadialGradientStartPoint: {
-                x: stage.width() / 2,
-                y: stage.height() / 2
-            },
-            fillRadialGradientEndRadius: stage.width(),
-            fillRadialGradientColorStops: [0, '#111', 1, '#000'],
-        }));
+            fill: 'black'
+        })));
+        var background = new Kinetic.Layer({id: 'background'});
+        stage.add(background);
         for (var i = 0; i < stage.width(); i++) {
             var y_pos = Math.floor(Math.random() * (stage.height()));
             var min_opacity = 0.2;
             var max_opacity_pos = stage.height() * 0.5;
             var max_opacity_height = stage.height() * 2;
             background.add(new Kinetic.Circle({
-                x: Math.floor(Math.random() * stage.width()),
+                x: Math.floor(Math.random() * stage.width() * 2),
                 y: y_pos,
                 radius: Math.floor(Math.random() * 10) / 8,
                 fill: "#eee",
                 opacity: 3 * Math.exp(-Math.pow((y_pos - max_opacity_pos), 2) / max_opacity_height) + min_opacity
             }));
         }
+        var animation = new Kinetic.Animation(function(frame) {
+            var velocity = 5;
+            var dist = velocity * (frame.timeDiff / 1000);
+            var newX = background.x() - dist;
+            if (newX > ( - stage.width())) {
+                background.x(newX);
+            } else {
+                background.x(0);
+            }
+        }, [background]);
+        animation.start();
 
         var galaxy = new Kinetic.Layer({id: 'galaxyLayer', draggable: true});
-        var galaxyBackground = new Kinetic.Rect({
+        var galaxyDragger = new Kinetic.Rect({
             width: stage.width(),
             height: stage.height(),
             opacity: 0
         });
-        function resizeGalaxyBackground(e) {
+        function resizeGalaxyDragger(e) {
             var pos = galaxy.position();
             var scale = galaxy.scale();
             var newOffset = {
                 x: pos.x / scale.x,
                 y: pos.y / scale.y
             };
-            galaxyBackground.offset(newOffset);
-            galaxyBackground.width(stage.width() / scale.x);
-            galaxyBackground.height(stage.height() / scale.y);
+            galaxyDragger.offset(newOffset);
+            galaxyDragger.width(stage.width() / scale.x);
+            galaxyDragger.height(stage.height() / scale.y);
             galaxy.draw();
         }
-        galaxy.on('dragend', resizeGalaxyBackground);
-        galaxy.add(galaxyBackground);
+        galaxy.on('dragend', resizeGalaxyDragger);
+        galaxy.add(galaxyDragger);
         stage.add(galaxy);
 
         $('#galaxy').bind('wheel', function(e) {
@@ -87,7 +93,7 @@
             };
             galaxy.position(newPos);
 
-            resizeGalaxyBackground();
+            resizeGalaxyDragger();
         });
 
         var availablePositions = {
