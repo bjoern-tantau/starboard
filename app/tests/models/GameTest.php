@@ -481,4 +481,32 @@ class Models_GameTest extends TestCase
         $this->assertEquals($player2->id, $game->nextPlayer->id);
     }
 
+    /**
+     * Get Planets through players.
+     *
+     * @test
+     */
+    public function testGetActivePlanetsThroughPlayers()
+    {
+        $user = User::firstOrCreate(array(
+                'email'                 => 'foo@bar.com',
+                'name'                  => 'foobar',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+        ));
+        $game = Game::create(array('owner' => $user));
+        $player = Player::create(array('user' => $user, 'game' => $game));
+        $planet = Planet::create(array('player' => $player));
+
+        $actual = $game->planets;
+        $this->assertCount(0, $actual);
+
+        $planet->xPosition = 0;
+        $planet->yPosition = 0;
+        $planet->save();
+        $game = Game::find($game->id);
+        $actual = $game->planets;
+        $this->assertCount(1, $actual);
+    }
+
 }

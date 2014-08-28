@@ -100,8 +100,13 @@ class GameController extends BaseController
                 break;
             case Game::STATE_SETUP_GALAXY:
             case Game::STATE_SETUP_GALAXY_REVERSE:
+                $player = Player::firstOrNew(array('game_id' => $game->id, 'user_id' => Auth::user()->id,));
+                foreach ($player->planets as $planet) {
+                    $planet->planet = $planet->planet; // Add XML
+                }
                 $this->layout->content = View::make('game.show.galaxy', array(
-                        'game' => $game,
+                        'game'   => $game,
+                        'player' => $player,
                 ));
                 break;
             default:
@@ -156,6 +161,7 @@ class GameController extends BaseController
                     }
                     $i = $i + $planetsPerPlayer;
                 }
+                $game->activePlayer = $game->nextPlayer;
                 $game->state = Game::STATE_SETUP_GALAXY;
                 $game->save();
                 break;
@@ -163,6 +169,16 @@ class GameController extends BaseController
                 break;
         }
         return Redirect::action('GameController@getShow', $game->id);
+    }
+
+    /**
+     * Update planet data.
+     *
+     * @return Response
+     */
+    public function putPlanet($gameId)
+    {
+        
     }
 
 }

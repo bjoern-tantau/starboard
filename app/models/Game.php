@@ -11,6 +11,7 @@
  * @property array $availableTypes Available Game Types.
  * @property string $nextFactionType Next available unused faction type.
  * @property Player $activePlayer Player that is allowed to do a move.
+ * @property Planets $planets Planets that are placed in the game.
  */
 class Game extends GameBase
 {
@@ -108,6 +109,16 @@ class Game extends GameBase
     public function players()
     {
         return $this->hasMany('Player');
+    }
+
+    /**
+     * Associate players with game.
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function planets()
+    {
+        return $this->hasManyThrough('Planet', 'Player')->whereNotNull('x_position')->whereNotNull('y_position');
     }
 
     /**

@@ -40,50 +40,62 @@
             <sol>
                 <name>Sol</name>
                 <routes>4</routes>
+                <color>yellow</color>
             </sol>
             <mercury>
                 <name>Mercury</name>
                 <routes>2</routes>
+                <color>lightcoral</color>
             </mercury>
             <venus>
                 <name>Venus</name>
                 <routes>3</routes>
+                <color>lightyellow</color>
             </venus>
             <terra>
                 <name>Terra</name>
                 <routes>4</routes>
+                <color>blue</color>
             </terra>
             <luna>
                 <name>Luna</name>
                 <routes>2</routes>
+                <color>silver</color>
             </luna>
             <mars>
                 <name>Mars</name>
                 <routes>3</routes>
+                <color>red</color>
             </mars>
             <jupiter>
                 <name>Jupiter</name>
                 <routes>4</routes>
+                <color>darkorange</color>
             </jupiter>
             <europa>
                 <name>Europa</name>
                 <routes>2</routes>
+                <color>lightblue</color>
             </europa>
             <saturn>
                 <name>Saturn</name>
                 <routes>4</routes>
+                <color>orange</color>
             </saturn>
             <uranus>
                 <name>Uranus</name>
                 <routes>4</routes>
+                <color>aquamarine</color>
             </uranus>
             <neptune>
                 <name>Neptune</name>
                 <routes>4</routes>
+                <color>midnightblue</color>
             </neptune>
             <pluto>
                 <name>Pluto</name>
                 <routes>2</routes>
+                <color>grey</color>
             </pluto>
         </planets>
     </starboard>

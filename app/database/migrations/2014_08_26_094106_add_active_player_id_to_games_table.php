@@ -14,7 +14,7 @@ class AddActivePlayerIdToGamesTable extends Migration {
 	{
 		Schema::table('games', function(Blueprint $table)
 		{
-			$table->integer('active_player_id')->nullable()->index();
+			$table->integer('active_player_id')->unsigned()->nullable()->index();
             $table->foreign('active_player_id')->references('id')->on('players')->onDelete('set null');
 		});
 	}
@@ -29,6 +29,8 @@ class AddActivePlayerIdToGamesTable extends Migration {
 	{
 		Schema::table('games', function(Blueprint $table)
 		{
+            /* @var $table Illuminate\Database\Schema\Blueprint */
+            $table->dropForeign('games_active_player_id_foreign');
 			$table->dropColumn('active_player_id');
 		});
 	}

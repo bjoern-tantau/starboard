@@ -5,6 +5,7 @@
         <title>{{{ $title or 'Starboard' }}}</title>
         {{ HTML::script('js/jquery.js') }}
         {{ HTML::script('js/autobahn.js') }}
+        {{ HTML::script('js/kinetic.js') }}
         @yield('head')
     </head>
     <body>

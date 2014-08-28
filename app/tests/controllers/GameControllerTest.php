@@ -232,6 +232,26 @@ class Controllers_GameControllerTest extends TestCase
         $this->assertCount(2, $player1->planets);
         $player2 = Player::find($player2->id);
         $this->assertCount(2, $player2->planets);
+        $this->assertEquals($player1->id, $game->activePlayer->id);
+    }
+
+    /**
+     * Put Planet
+     *
+     * @test
+     */
+    public function testPutPlanet()
+    {
+        $crawler = $this->client->request('PUT', action('GameController@putUpdate'), array('_token' => Session::token()));
+        $this->assertTrue($this->client->getResponse()->isRedirect(url('login')));
+        $user = User::create(array(
+                'name'                  => 'admin',
+                'email'                 => 'foo@example.com',
+                'password'              => 'password',
+                'password_confirmation' => 'password',
+                )
+        );
+        $this->fail('Test is incomplete.');
     }
 
 }
