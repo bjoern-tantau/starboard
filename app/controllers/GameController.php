@@ -178,7 +178,82 @@ class GameController extends BaseController
      */
     public function putPlanet($gameId)
     {
-        
+        $game = Game::find($gameId);
+        if (!$game) {
+            return App::abort(404);
+        }
+
+        if ($game->activePlayer->user_id != Auth::id()) {
+            return Redirect::action('GameController@getShow', $game->id)->withErrors(array('player' => array('Only the active player may place a planet.')));
+        }
+
+        $planetId = Input::get('planet_id');
+        $planet = Planet::find($planetId);
+        if (!$planet) {
+            return Redirect::action('GameController@getShow', $game->id)->withErrors(array('planet' => array('The specified planet does not exist.')));
+        } elseif ($game->activePlayer->id != $planet->player_id) {
+            return Redirect::action('GameController@getShow', $game->id)->withErrors(array('planet' => array('The specified planet does not belong to the current player.')));
+        } elseif (!is_null($planet->xPosition) && !is_null($planet->yPosition)) {
+            return Redirect::action('GameController@getShow', $game->id)->withErrors(array('planet' => array('The specified planet has already been placed.')));
+        }
+
+        $xPosition = Input::get('planet_x_position');
+        $yPosition = Input::get('planet_y_position');
+        if (!is_numeric($xPosition) || !is_numeric($yPosition)) {
+            return Redirect::action('GameController@getShow', $game->id)->withErrors(array('planet' => array('Invalid coordinates provided.')));
+        }
+
+        $neighbors = array();
+
+        foreach ($game->planets as $activePlanet) {
+            if ($activePlanet->xPosition == $xPosition && $activePlanet->yPosition == $yPosition) {
+                return Redirect::action('GameController@getShow', $game->id)->withErrors(array('planet' => array('Invalid coordinates provided.')));
+            }
+            for ($i = 0; $i < $activePlanet->planet->routes; $i++) {
+                switch ($i) {
+                    case 0: // LEFT
+                        $activeX = $activePlanet->xPosition - 1;
+                        $activeY = $activePlanet->yPosition;
+                        break;
+                    case 1: // RIGHT
+                        $activeX = $activePlanet->xPosition + 1;
+                        $activeY = $activePlanet->yPosition;
+                        break;
+                    case 2: // UP
+                        $activeX = $activePlanet->xPosition;
+                        $activeY = $activePlanet->yPosition + 1;
+                        break;
+                    case 3: // DOWN
+                        $activeX = $activePlanet->xPosition;
+                        $activeY = $activePlanet->yPosition - 1;
+                        break;
+                }
+                if ($activeX == $xPosition && $activeY == $yPosition) {
+                    $neighbors[] = $activePlanet;
+                }
+            }
+        }
+
+        if (((empty($neighbors) || count($game->planets) == 0) && ($xPosition != 0 || $yPosition != 0))) {
+            return Redirect::action('GameController@getShow', $game->id)->withErrors(array('planet' => array('Invalid coordinates provided.')));
+        }
+
+        foreach ($neighbors as $neighbor) {
+            NavigationRoute::create(array('planet1' => $neighbor, 'planet2' => $planet));
+        }
+        $planet->xPosition = $xPosition;
+        $planet->yPosition = $yPosition;
+        $planet->save();
+
+        $game->activePlayer = $game->nextPlayer;
+        if ($game->activePlayer->id == $game->players->first()->id) {
+            $game->state = Game::STATE_SETUP_GALAXY_REVERSE;
+        } elseif ($game->activePlayer->id == $game->players->last()->id) {
+            $game->state = Game::STATE_SETUP_GALAXY;
+        }
+        $game->save();
+
+        return Redirect::action('GameController@getShow', $game->id);
     }
 
 }
