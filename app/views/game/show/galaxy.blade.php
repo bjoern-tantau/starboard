@@ -18,29 +18,39 @@
     $(document).ready(function() {
         var stage = new Kinetic.Stage({
             container: $('#galaxy')[0],
-            width: 800,
+            width: $('#galaxy').width(),
             height: 500
         });
-        stage.add(new Kinetic.Layer().add(new Kinetic.Rect({
+
+        var background = new Kinetic.Layer({id: 'background'});
+        var backgroundGroup = new Kinetic.Group();
+        backgroundGroup.add(new Kinetic.Rect({
             width: stage.width(),
             height: stage.height(),
             fill: 'black'
-        })));
-        var background = new Kinetic.Layer({id: 'background'});
-        stage.add(background);
+        }));
         for (var i = 0; i < stage.width(); i++) {
             var y_pos = Math.floor(Math.random() * (stage.height()));
             var min_opacity = 0.2;
             var max_opacity_pos = stage.height() * 0.5;
             var max_opacity_height = stage.height() * 2;
-            background.add(new Kinetic.Circle({
-                x: Math.floor(Math.random() * stage.width() * 2),
+            backgroundGroup.add(new Kinetic.Circle({
+                x: Math.floor(Math.random() * stage.width()),
                 y: y_pos,
                 radius: Math.floor(Math.random() * 10) / 8,
                 fill: "#eee",
                 opacity: 3 * Math.exp(-Math.pow((y_pos - max_opacity_pos), 2) / max_opacity_height) + min_opacity
             }));
         }
+        background.add(backgroundGroup);
+        background.add(backgroundGroup.clone({
+            x: stage.width() - 1
+        }))
+        background = background.cache({
+            width: stage.width() * 2,
+            height: stage.height()
+        });
+        stage.add(background);
         var animation = new Kinetic.Animation(function(frame) {
             var velocity = 5;
             var dist = velocity * (frame.timeDiff / 1000);
