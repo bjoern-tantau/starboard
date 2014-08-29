@@ -104,6 +104,9 @@ class GameController extends BaseController
                 foreach ($player->planets as $planet) {
                     $planet->planet = $planet->planet; // Add XML
                 }
+                foreach ($game->planets as $planet) {
+                    $planet->planet = $planet->planet; // Add XML
+                }
                 $this->layout->content = View::make('game.show.galaxy', array(
                         'game'   => $game,
                         'player' => $player,
@@ -209,7 +212,32 @@ class GameController extends BaseController
             if ($activePlanet->xPosition == $xPosition && $activePlanet->yPosition == $yPosition) {
                 return Redirect::action('GameController@getShow', $game->id)->withErrors(array('planet' => array('Invalid coordinates provided.')));
             }
-            for ($i = 0; $i < $activePlanet->planet->routes; $i++) {
+            $start = 0;
+            $routes = $activePlanet->planet->routes;
+            if ($routes == 2) {
+                foreach ($game->planets as $neighborPlanet) {
+                    if ($neighborPlanet->xPosition == $activePlanet->xPosition) {
+                        if (
+                            $neighborPlanet->yPosition - 1 == $activePlanet->yPosition ||
+                            $neighborPlanet->yPosition + 1 == $activePlanet->yPosition
+                        ) {
+                            $start = 2; // vertically turned planet
+                            $routes = 4;
+                            break;
+                        }
+                    }
+                }
+            } elseif ($routes == 3) {
+                foreach ($game->planets as $neighborPlanet) {
+                    if ($neighborPlanet->xPosition == $activePlanet->xPosition) {
+                        if ($neighborPlanet->yPosition + 1 == $activePlanet->yPosition) {
+                            $routes = 2;
+                            break;
+                        }
+                    }
+                }
+            }
+            for ($i = $start; $i < $routes; $i++) {
                 switch ($i) {
                     case 0: // LEFT
                         $activeX = $activePlanet->xPosition - 1;

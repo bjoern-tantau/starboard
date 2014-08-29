@@ -55,7 +55,7 @@
             var velocity = 5;
             var dist = velocity * (frame.timeDiff / 1000);
             var newX = background.x() - dist;
-            if (newX > ( - stage.width())) {
+            if (newX > (-stage.width())) {
                 background.x(newX);
             } else {
                 background.x(0);
@@ -106,23 +106,9 @@
             resizeGalaxyDragger();
         });
 
-        var availablePositions = {
-            '0': {
-                '0': true
-            }
-        };
-
-        // @if($game->activePlayer->id == $player->id)
-
-        var newPlanets = (<?php echo $player->planets->toJson() ?>);
-        var newPlanetsLayer = new Kinetic.Layer({id: 'newPlanets'});
-        stage.add(newPlanetsLayer);
-        var clones = [];
-        $.each(newPlanets, function(index, planet) {
-            var planetGroup = new Kinetic.Group({
-                x: 120 * index + 60,
-                y: stage.height() - 60
-            });
+        function createPlanet(planet, config) {
+            var config = config || {};
+            var planetGroup = new Kinetic.Group(config);
             var circle = new Kinetic.Circle({
                 radius: 50,
                 fill: planet.planet.color
@@ -139,52 +125,151 @@
             name.offsetX(name.width() / 2);
             name.offsetY(40);
             planetGroup.add(name);
-            newPlanetsLayer.add(planetGroup);
-            planetGroup.on('click', function() {
-                $.each(clones, function(index, clone) {
-                    clone.remove();
-                });
-                $('#planet_id').val(null);
-                $('#planet_x_position').val(null);
-                $('#planet_y_position').val(null);
-                $('#submit_planet').attr('disabled', 'disabled');
-                $.each(availablePositions, function(x, yPositions) {
-                    $.each(yPositions, function(y) {
-                        var clone = planetGroup.clone({
-                            opacity: 0.5
-                        });
-                        clone.returnOpacity = clone.getAttr('opacity');
-                        clone.xPlanetPosition = x;
-                        clone.yPlanetPosition = y;
-                        clone.off('click');
-                        clone.setAbsolutePosition({x: (stage.width() / 2) + (x * (circle.getAttr('radius') * 2 + 5)), y: (stage.height() / 2) + (y * (circle.getAttr('radius') * 2 + 5))});
-                        clone.on('mouseover', function() {
-                            this.opacity(1);
-                            galaxy.draw();
-                        });
-                        clone.on('mouseout', function() {
-                            this.opacity(clone.returnOpacity);
-                            galaxy.draw();
-                        });
-                        clone.on('click', function() {
-                            $.each(clones, function(index, clone) {
-                                clone.opacity(0.5);
-                                clone.returnOpacity = clone.getAttr('opacity');
-                            });
-                            this.opacity(1);
-                            this.returnOpacity = clone.getAttr('opacity');
-                            $('#planet_id').val(planet.id);
-                            $('#planet_x_position').val(this.xPlanetPosition);
-                            $('#planet_y_position').val(this.yPlanetPosition);
-                            $('#submit_planet').removeAttr('disabled');
-                            galaxy.draw();
-                        });
-                        galaxy.add(clone);
-                        clones.push(clone);
-                    });
-                });
-                galaxy.draw();
+            return planetGroup;
+        }
+
+        var availablePositions = {
+            '0': {
+                '0': true
+            }
+        };
+        var occupiedPositions = {};
+
+        var activePlanets = (<?php echo $game->planets->toJson() ?>);
+        $.each(activePlanets, function(index, planet) {
+            var planetGroup = createPlanet(planet, {
+                id: 'planet' + planet.id,
+                x: stage.width() / 2 + planet.x_position * 105,
+                y: stage.height() / 2 - planet.y_position * 105
             });
+            if (!occupiedPositions[planet.x_position]) {
+                occupiedPositions[planet.x_position] = {};
+            }
+            occupiedPositions[planet.x_position][planet.y_position] = planet;
+            var routes = planet.planet.routes;
+            var start = 0;
+            if (routes == 2) {
+                $.each(activePlanets, function(index, activePlanet) { // Hooray for function scopes.
+                    if (activePlanet.x_position == planet.x_position) {
+                        if (
+                                activePlanet.y_position - 1 == planet.y_position ||
+                                activePlanet.y_position + 1 == planet.y_position
+                                ) {
+                            start = 2; // vertically turned planet
+                            routes = 4;
+                            return false;
+                        }
+                    }
+                });
+            } else if (routes == 3) {
+                $.each(activePlanets, function(index, activePlanet) { // Hooray for function scopes.
+                    if (activePlanet.x_position == planet.x_position) {
+                        if (activePlanet.y_position + 1 == planet.y_position) {
+                            routes = 2; // Only allow routes to left and right if taken route is down.
+                            return false;
+                        }
+                    }
+                });
+            }
+            for (var i = start; i < routes; i++) {
+                switch (i) {
+                    case 0: // LEFT
+                        var availableX = planet.x_position - 1;
+                        var availableY = planet.y_position;
+                        break;
+                    case 1: // RIGHT
+                        var availableX = planet.x_position + 1;
+                        var availableY = planet.y_position;
+                        break;
+                    case 2: // UP
+                        var availableX = planet.x_position;
+                        var availableY = planet.y_position + 1;
+                        break;
+                    case 3: // DOWN
+                        var availableX = planet.x_position;
+                        var availableY = planet.y_position - 1;
+                        break;
+                    default: // A B A
+                        alert('Konami!');
+                        break;
+                }
+                if (!availablePositions[availableX]) {
+                    availablePositions[availableX] = {};
+                }
+                availablePositions[availableX][availableY] = true;
+            }
+            galaxy.add(planetGroup);
+        });
+        $.each(occupiedPositions, function(xPosition, yPositions) {
+            $.each(yPositions, function(yPosition, planet) {
+                if (availablePositions[xPosition]) {
+                    delete availablePositions[xPosition][yPosition];
+                }
+            });
+        });
+        galaxy.draw();
+
+        // @if($game->activePlayer->id == $player->id)
+
+        var newPlanets = (<?php echo $player->planets->toJson() ?>);
+        var newPlanetsLayer = new Kinetic.Layer({id: 'newPlanets'});
+        stage.add(newPlanetsLayer);
+        var clones = [];
+        $.each(newPlanets, function(index, planet) {
+            if (planet.x_position === null || planet.y_position === null || planet.x_position === undefined || planet.y_position === undefined) {
+                var planetGroup = createPlanet(planet, {
+                    x: 120 * index + 60,
+                    y: stage.height() - 60
+                });
+
+                newPlanetsLayer.add(planetGroup);
+
+                planetGroup.on('click', function() {
+                    $.each(clones, function(index, clone) {
+                        clone.remove();
+                    });
+                    $('#planet_id').val(null);
+                    $('#planet_x_position').val(null);
+                    $('#planet_y_position').val(null);
+                    $('#submit_planet').attr('disabled', 'disabled');
+                    $.each(availablePositions, function(x, yPositions) {
+                        $.each(yPositions, function(y) {
+                            var clone = planetGroup.clone({
+                                opacity: 0.5
+                            });
+                            clone.returnOpacity = clone.getAttr('opacity');
+                            clone.xPlanetPosition = x;
+                            clone.yPlanetPosition = y;
+                            clone.off('click');
+                            clone.setAbsolutePosition({x: (stage.width() / 2) + (x * (50 * 2 + 5)), y: (stage.height() / 2) - (y * (50 * 2 + 5))});
+                            clone.on('mouseover', function() {
+                                this.opacity(1);
+                                galaxy.draw();
+                            });
+                            clone.on('mouseout', function() {
+                                this.opacity(clone.returnOpacity);
+                                galaxy.draw();
+                            });
+                            clone.on('click', function() {
+                                $.each(clones, function(index, clone) {
+                                    clone.opacity(0.5);
+                                    clone.returnOpacity = clone.getAttr('opacity');
+                                });
+                                this.opacity(1);
+                                this.returnOpacity = clone.getAttr('opacity');
+                                $('#planet_id').val(planet.id);
+                                $('#planet_x_position').val(this.xPlanetPosition);
+                                $('#planet_y_position').val(this.yPlanetPosition);
+                                $('#submit_planet').removeAttr('disabled');
+                                galaxy.draw();
+                            });
+                            galaxy.add(clone);
+                            clones.push(clone);
+                        });
+                    });
+                    galaxy.draw();
+                });
+            }
         });
         // @endif
 
