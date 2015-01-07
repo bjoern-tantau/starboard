@@ -12,7 +12,7 @@ Blade::extend(function($view, $compiler){
     /* @var $compiler \Illuminate\View\Compilers\BladeCompiler */
     $pattern = $compiler->createMatcher('errors');
     $replacement = '$1<?php if ($errors->has($2)): ?>'
-        . '<ul class="errors $2">'
+        . '<ul class="errors <?php echo $2 ?>">'
         . '<?php foreach ($errors->get($2) as $error): ?>'
         . '<li class="error"><?php echo $error ?></li>'
         . '<?php endforeach; ?>'

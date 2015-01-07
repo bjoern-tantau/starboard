@@ -2,7 +2,7 @@
 
 <h2>{{{ trans('Build the galaxy!') }}}</h2>
 
-<section id="galaxy"></section>
+<section id="galaxy" style="height: 600px;"></section>
 
 @if($game->activePlayer->id == $player->id)
 {{ Form::model($game, array('action' => array('GameController@putPlanet', $game->id), 'method' => 'PUT')) }}
@@ -19,7 +19,7 @@
         var stage = new Kinetic.Stage({
             container: $('#galaxy')[0],
             width: $('#galaxy').width(),
-            height: 500
+            height: $('#galaxy').height()
         });
 
         var background = new Kinetic.Layer({id: 'background'});
